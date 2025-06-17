@@ -91,16 +91,16 @@ def main():
         return bb_imgs, bb_accs
     def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
         return loto_img[sum_mv]
-    # def calc_orientation(org: pg.Rect, dst: pg.Rect,current_xy: list[float, float]) -> tuple[float, float]:
-    #     dx = dst.centerx - org.centerx
-    #     dy = dst.centery - org.centery
-    #     length = (dx**2 + dy**2)**0.5
-    #     if length >= 300:
-    #         nor_dx = dx * 50**0.5 / length
-    #         nor_dy = dy * 50**0.5 / length
-    #         return (nor_dx, nor_dy)
-    #     else:
-    #         return current_xy
+    def calc_orientation(org: pg.Rect, dst: pg.Rect,current_xy: list[float, float]) -> tuple[float, float]:
+        dx = dst.centerx - org.centerx
+        dy = dst.centery - org.centery
+        length = (dx**2 + dy**2)**0.5
+        if length >= 300:
+            nor_dx = dx * 50**0.5 / length
+            nor_dy = dy * 50**0.5 / length
+            return (nor_dx, nor_dy)
+        else:
+            return current_xy
             
 
 
@@ -136,7 +136,7 @@ def main():
             vy *= -1
         screen.blit(bb_img, bb_rct)
         kk_img = get_kk_img(tuple(sum_mv))
-        # vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
+        vx, vy = calc_orientation(bb_rct, kk_rct, (vx, vy))
         
 
         pg.display.update()
