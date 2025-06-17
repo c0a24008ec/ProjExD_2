@@ -20,43 +20,8 @@ def check_bound(rct):
         tate = False
     return yoko, tate
 
-
-def main():
-    pg.display.set_caption("逃げろ！こうかとん")
-    screen = pg.display.set_mode((WIDTH, HEIGHT))
-    bg_img = pg.image.load("fig/pg_bg.jpg")    
-    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
-    kk_rct = kk_img.get_rect()
-    kk_rct.center = 300, 200
-    kk_flip_img = pg.transform.flip(kk_img, True, False)  # こうかとんの画像を左右反
-    kk_flip_rct = kk_flip_img.get_rect()
-    kk_flip_rct.center = 300, 200
-    clock = pg.time.Clock()
-    tmr = 0
-    DELTA = { # 移動量辞書
-        pg.K_UP:(0,-5),
-        pg.K_DOWN:(0,+5),
-        pg.K_LEFT:(-5,0),
-        pg.K_RIGHT:(+5,0)
-    }
-    loto_img = {
-        (0, 0): pg.transform.rotozoom(kk_flip_img, 0, 1),
-        (0, -5): pg.transform.rotozoom(kk_flip_img, 90, 1),
-        (+5, -5): pg.transform.rotozoom(kk_flip_img, 45, 1),
-        (+5, 0): pg.transform.rotozoom(kk_flip_img, 0, 1),
-        (+5, +5): pg.transform.rotozoom(kk_flip_img, -45, 1),
-        (0, +5): pg.transform.rotozoom(kk_flip_img, -90, 1),
-        (-5, +5): pg.transform.rotozoom(kk_img, 45, 1),
-        (-5, 0): pg.transform.rotozoom(kk_img, 0, 1),
-        (-5, -5): pg.transform.rotozoom(kk_img, -45, 1),
-    }
-    bb_img = pg.Surface((20, 20))
-    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
-    bb_img.set_colorkey((0, 0, 0))
-    bb_rct = bb_img.get_rect()
-    bb_rct.centerx = rd.randint(0,WIDTH)
-    bb_rct.centery = rd.randint(0,HEIGHT)
-    vx, vy = +5, +5
+# ゲームオーバー画面の表示
+def gameover(screen: pg.Surface,) -> None: 
     gg_img = pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(gg_img, (0,0,0),(0,0,WIDTH,HEIGHT))
     gg_img.set_alpha(200)
@@ -70,37 +35,79 @@ def main():
     fonto = pg.font.Font(None, 80)
     txt = fonto.render("GAME OVER", True, (255, 255, 255))
     txt_rct = txt.get_rect()
-    txt_rct.center = (WIDTH // 2, HEIGHT // 2)
+    txt_rct.center = (WIDTH // 2, HEIGHT // 2)     
+    screen.blit(gg_img,gg_rct)
+    screen.blit(txt, txt_rct)
+    screen.blit(kk_gg_img, kk_gg_rct1)
+    screen.blit(kk_gg_img, kk_gg_rct2)
+    pg.display.update()
+    time.sleep(5)
+def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
+    bb_accs,bb_imgs = [], []
+    for r in range(1, 11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0, 0, 0))
+        bb_imgs.append(bb_img)
+        bb_accs.append(r)
+    return bb_imgs, bb_accs
+def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_rct = kk_img.get_rect()
+    kk_rct.center = 300, 200
+    kk_flip_img = pg.transform.flip(kk_img, True, False)  # こうかとんの画像を左右反
+    kk_flip_rct = kk_flip_img.get_rect()
+    kk_flip_rct.center = 300, 200
+    loto_img = {
+        (0, 0): pg.transform.rotozoom(kk_flip_img, 0, 1),
+        (0, -5): pg.transform.rotozoom(kk_flip_img, 90, 1),
+        (+5, -5): pg.transform.rotozoom(kk_flip_img, 45, 1),
+        (+5, 0): pg.transform.rotozoom(kk_flip_img, 0, 1),
+        (+5, +5): pg.transform.rotozoom(kk_flip_img, -45, 1),
+        (0, +5): pg.transform.rotozoom(kk_flip_img, -90, 1),
+        (-5, +5): pg.transform.rotozoom(kk_img, 45, 1),
+        (-5, 0): pg.transform.rotozoom(kk_img, 0, 1),
+        (-5, -5): pg.transform.rotozoom(kk_img, -45, 1),
+    }
+    return loto_img[sum_mv]
+def calc_orientation(org: pg.Rect, dst: pg.Rect,current_xy: list[float, float]) -> tuple[float, float]:
+    dx = dst.centerx - org.centerx
+    dy = dst.centery - org.centery
+    length = (dx**2 + dy**2)**0.5
+    if length >= 300:
+        nor_dx = dx * 50**0.5 / length
+        nor_dy = dy * 50**0.5 / length
+        return (nor_dx, nor_dy)
+    else:
+        return current_xy
+
+def main():
+    pg.display.set_caption("逃げろ！こうかとん")
+    screen = pg.display.set_mode((WIDTH, HEIGHT))
+    bg_img = pg.image.load("fig/pg_bg.jpg")    
+    kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
+    kk_rct = kk_img.get_rect()
+    kk_rct.center = 300, 200
     
-    # ゲームオーバー画面の表示
-    def gameover(screen: pg.Surface) -> None:      
-        screen.blit(gg_img,gg_rct)
-        screen.blit(txt, txt_rct)
-        screen.blit(kk_gg_img, kk_gg_rct1)
-        screen.blit(kk_gg_img, kk_gg_rct2)
-        pg.display.update()
-        time.sleep(5)
-    def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
-        bb_accs,bb_imgs = [], []
-        for r in range(1, 11):
-            bb_img = pg.Surface((20*r, 20*r))
-            pg.draw.circle(bb_img, (255, 0, 0), (10*r, 10*r), 10*r)
-            bb_img.set_colorkey((0, 0, 0))
-            bb_imgs.append(bb_img)
-            bb_accs.append(r)
-        return bb_imgs, bb_accs
-    def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
-        return loto_img[sum_mv]
-    def calc_orientation(org: pg.Rect, dst: pg.Rect,current_xy: list[float, float]) -> tuple[float, float]:
-        dx = dst.centerx - org.centerx
-        dy = dst.centery - org.centery
-        length = (dx**2 + dy**2)**0.5
-        if length >= 300:
-            nor_dx = dx * 50**0.5 / length
-            nor_dy = dy * 50**0.5 / length
-            return (nor_dx, nor_dy)
-        else:
-            return current_xy
+    clock = pg.time.Clock()
+    tmr = 0
+    DELTA = { # 移動量辞書
+        pg.K_UP:(0,-5),
+        pg.K_DOWN:(0,+5),
+        pg.K_LEFT:(-5,0),
+        pg.K_RIGHT:(+5,0)
+    }
+    
+    bb_img = pg.Surface((20, 20))
+    pg.draw.circle(bb_img, (255, 0, 0), (10, 10), 10)
+    bb_img.set_colorkey((0, 0, 0))
+    bb_rct = bb_img.get_rect()
+    bb_rct.centerx = rd.randint(0,WIDTH)
+    bb_rct.centery = rd.randint(0,HEIGHT)
+    vx, vy = +5, +5
+    
+    
+    
             
 
     while True:
