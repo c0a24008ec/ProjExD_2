@@ -29,15 +29,28 @@ def main():
     bb_rct = bb_img.get_rect()
     bb_rct.centerx = rd.randint(0,WIDTH)
     bb_rct.centery = rd.randint(0,HEIGHT)
-    vx = rd.randint(-5, 5)
-    vy = rd.randint(-5, 5)
-
+    vx, vy = +5, +5
+    def check_bound(rct):
+        """
+        引数：こうかとんRectかばくだんRect
+        戻り値：タプル（横方向判定結果，縦方向判定結果）
+        画面内ならTrue, 画面外ならFalse
+        """
+        yoko, tate = True, True #初期値は画面内
+        if rct.left < 0 or WIDTH < rct.right: #横座標チェック
+            yoko = False
+        if rct.top < 0 or HEIGHT < rct.bottom: #縦座標チェック
+            tate = False
+        return yoko, tate
 
 
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
                 return
+        if kk_rct.colliderect(bb_rct):
+            print("Game Over")
+            return
         screen.blit(bg_img, [0, 0]) 
 
         key_lst = pg.key.get_pressed()
@@ -55,9 +68,18 @@ def main():
         # if key_lst[pg.K_RIGHT]:
         #     sum_mv[0] += 5
         kk_rct.move_ip(sum_mv)
-        bb_rct.move_ip(vx, vy)
+        if check_bound(kk_rct) != (True,True):
+            kk_rct.move_ip(-sum_mv[0], -sum_mv[1])
         screen.blit(kk_img, kk_rct)
+        bb_rct.move_ip(vx, vy)
+        yoko, tate = check_bound(bb_rct)
+        if not yoko:
+            vx *= -1
+        if not tate:
+            vy *= -1
         screen.blit(bb_img, bb_rct)
+        
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
