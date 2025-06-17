@@ -20,7 +20,7 @@ def check_bound(rct):
         tate = False
     return yoko, tate
 
-        
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -102,9 +102,6 @@ def main():
         else:
             return current_xy
             
-
-
-    
 
     while True:
         for event in pg.event.get():
