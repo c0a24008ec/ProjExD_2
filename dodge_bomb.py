@@ -56,6 +56,11 @@ def init_bb_imgs() -> tuple[list[pg.Surface], list[int]]:
         bb_accs.append(r)
     return bb_imgs, bb_accs
 def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
+    """
+    こうかとんの画像をsum_mvに応じて回転させて返す
+    引数：sum_mv: こうかとんの移動量のタプル
+    戻り値：回転させたこうかとんの画像
+    """
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
     kk_rct.center = 300, 200
