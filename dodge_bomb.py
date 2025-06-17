@@ -22,6 +22,10 @@ def check_bound(rct):
 
 # ゲームオーバー画面の表示
 def gameover(screen: pg.Surface,) -> None: 
+    """
+    背景、文字、画像をロード
+    関数が読み込まれたらゲームオーバー画面を表示
+    """
     gg_img = pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(gg_img, (0,0,0),(0,0,WIDTH,HEIGHT))
     gg_img.set_alpha(200)
@@ -71,6 +75,11 @@ def get_kk_img(sum_mv: tuple[int, int]) -> pg.Surface:
     }
     return loto_img[sum_mv]
 def calc_orientation(org: pg.Rect, dst: pg.Rect,current_xy: list[float, float]) -> tuple[float, float]:
+    """
+    爆弾とこうかとんの位置を比較して、爆弾の移動方向を計算する
+    引数：org: こうかとんのRect, dst: 爆弾のRect, current_xy: 現在の爆弾の移動方向
+    戻り値：爆弾の移動方向のタプル(dx, dy)
+    """
     dx = dst.centerx - org.centerx
     dy = dst.centery - org.centery
     length = (dx**2 + dy**2)**0.5
